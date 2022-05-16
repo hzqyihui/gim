@@ -8,12 +8,17 @@ import (
 // User 用户模型
 type User struct {
 	gorm.Model
+	ID      int
 	Name    string
 	ComId   int
 	Pwd     string
 	Account string
-	Status  int8
+	Status  int
 	Avatar  string `gorm:"size:1000"`
+}
+
+func (User) TableName() string {
+	return "user"
 }
 
 const (
@@ -40,12 +45,12 @@ func (user *User) SetPassword(password string) error {
 	if err != nil {
 		return err
 	}
-	user.PasswordDigest = string(bytes)
+	user.Pwd = string(bytes)
 	return nil
 }
 
 // CheckPassword 校验密码
 func (user *User) CheckPassword(password string) bool {
-	err := bcrypt.CompareHashAndPassword([]byte(user.PasswordDigest), []byte(password))
+	err := bcrypt.CompareHashAndPassword([]byte(user.Pwd), []byte(password))
 	return err == nil
 }

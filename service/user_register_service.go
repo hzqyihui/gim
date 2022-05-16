@@ -7,57 +7,54 @@ import (
 
 // UserRegisterService 管理用户注册服务
 type UserRegisterService struct {
-	Name    string `form:"nickname" json:"nickname" binding:"required,min=2,max=30"`
-	ACCOUNT string `form:"user_name" json:"user_name" binding:"required,min=5,max=30"`
-	PWD     string `form:"password" json:"password" binding:"required,min=8,max=40"`
-	AVATAR  string `form:"password_confirm" json:"password_confirm" binding:"required,min=8,max=40"`
+	Name       string `form:"name" json:"name" binding:"required,min=2,max=30"`
+	Account    string `form:"account" json:"account" binding:"required,min=5,max=30"`
+	Pwd        string `form:"pwd" json:"pwd" binding:"required,min=4,max=16"`
+	PwdConfirm string `form:"pwd_confirm" json:"pwd_confirm" binding:"required,min=4,max=16"`
+	Avatar     string `form:"avatar" json:"avatar" binding:""`
 }
 
 // Valid 验证表单
-func (service *UserRegisterService) Valid() *serializer.Response {
-	if service.PasswordConfirm != service.Password {
-		return &serializer.Response{
-			Status: 40001,
-			Msg:    "两次输入的密码不相同",
-		}
+func (service *UserRegisterService) Valid() string {
+
+	if service.Pwd != service.PwdConfirm {
+		return "两次密码不一致"
 	}
 
 	count := 0
-	model.DB.Model(&model.User{}).Where("nickname = ?", service.Nickname).Count(&count)
+	model.DB.Model(&model.User{}).Where("name = ?", service.Name).Count(&count)
 	if count > 0 {
-		return &serializer.Response{
-			Status: 40001,
-			Msg:    "昵称被占用",
-		}
+		return "昵称被占用"
 	}
 
 	count = 0
-	model.DB.Model(&model.User{}).Where("user_name = ?", service.UserName).Count(&count)
+	model.DB.Model(&model.User{}).Where("account = ?", service.Account).Count(&count)
 	if count > 0 {
-		return &serializer.Response{
-			Status: 40001,
-			Msg:    "用户名已经注册",
-		}
+		return "账号已经注册"
 	}
 
-	return nil
+	return ""
 }
 
 // Register 用户注册
 func (service *UserRegisterService) Register() (model.User, *serializer.Response) {
 	user := model.User{
-		Nickname: service.Nickname,
-		UserName: service.UserName,
-		Status:   model.Active,
+		Name:    service.Name,
+		Account: service.Account,
+		Avatar:  service.Avatar,
+		Status:  model.Active,
 	}
 
 	// 表单验证
-	if err := service.Valid(); err != nil {
-		return user, err
+	if err := service.Valid(); err != "" {
+		return user, &serializer.Response{
+			Status: 40002,
+			Msg:    err,
+		}
 	}
 
 	// 加密密码
-	if err := user.SetPassword(service.Password); err != nil {
+	if err := user.SetPassword(service.Pwd); err != nil {
 		return user, &serializer.Response{
 			Status: 40002,
 			Msg:    "密码加密失败",
