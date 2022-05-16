@@ -4,7 +4,7 @@ import "gim/model"
 
 // User 用户序列化器
 type User struct {
-	ID      int    `json:"id"`
+	ID      uint   `json:"id"`
 	Name    string `json:"name"`
 	Account string `json:"account"`
 	Status  int    `json:"status"`
