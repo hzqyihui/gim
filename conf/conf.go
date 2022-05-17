@@ -1,6 +1,7 @@
 package conf
 
 import (
+	"gim/cache"
 	"gim/model"
 
 	"github.com/joho/godotenv"
@@ -18,7 +19,7 @@ func Init() {
 
 	// 连接数据库
 	model.Init()
-	//cache.Redis()
+	cache.Redis()
 	//
 	//// 启动定时任务
 	//tasks.CronJob()

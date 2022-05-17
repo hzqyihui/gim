@@ -2,6 +2,7 @@ package route
 
 import (
 	"gim/controller/api"
+	"gim/controller/msgBoard"
 	"gim/middleware"
 	"github.com/gin-gonic/gin"
 	"os"
@@ -26,6 +27,9 @@ func NewRouter() *gin.Engine {
 		v1.POST("user/login", api.UserLogin)
 		// 用户注销
 		v1.POST("user/logout", api.UserLogout)
+
+		v1.POST("msgBoard/save",msgBoard.InsertMsg)
+		v1.GET("msgBoard/list",msgBoard.MsgList)
 
 	}
 
